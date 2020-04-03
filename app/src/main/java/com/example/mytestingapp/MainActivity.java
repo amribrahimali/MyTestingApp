@@ -73,8 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     decrease(etPercentage, PERCENTAGE_TYPE);
                 break;
             case R.id.flatBtnDecreaseDividend:
-                if (Integer.parseInt(etDividends.getText().toString()) > 1)
-                    decrease(etDividends, DIVIDEND_TYPE);
+                decrease(etDividends, DIVIDEND_TYPE);
                 break;
             case R.id.btnCalc:
                 calculateResult();
@@ -84,22 +83,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void increase(EditText editText, int type) {
         String inputString = editText.getText().toString();
         if (type == 1) {
-            double inputDouble = Double.parseDouble(inputString);
-            editText.setText(String.valueOf(inputDouble + DEFAULT_PERCENTAGE));
+            try {
+                double inputDouble = Double.parseDouble(inputString);
+                editText.setText(String.valueOf(inputDouble + DEFAULT_PERCENTAGE));
+            } catch (Exception e) {
+                Toast.makeText(this, "Percentage must be double value", Toast.LENGTH_SHORT).show();
+            }
+
         } else {
-            int inputInt = Integer.parseInt(inputString);
-            editText.setText(String.valueOf(inputInt + DEFAULT_DIVIDEND));
+            try {
+                int inputInt = Integer.parseInt(inputString);
+                editText.setText(String.valueOf(inputInt + DEFAULT_DIVIDEND));
+            } catch (Exception e) {
+                Toast.makeText(this, "Dividend must be integer value", Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 
     private void decrease(EditText editText, int type) {
         String inputString = editText.getText().toString();
         if (type == 1) {
-            double inputDouble = Double.parseDouble(inputString);
-            editText.setText(String.valueOf(inputDouble - DEFAULT_PERCENTAGE));
+            try {
+                if (Double.parseDouble(etPercentage.getText().toString()) > 0.0) {
+                    double inputDouble = Double.parseDouble(inputString);
+                    editText.setText(String.valueOf(inputDouble - DEFAULT_PERCENTAGE));
+                }
+            } catch (Exception e) {
+                Toast.makeText(this, "Percentage must be double value", Toast.LENGTH_SHORT).show();
+            }
+
         } else {
-            int inputInt = Integer.parseInt(inputString);
-            editText.setText(String.valueOf(inputInt - DEFAULT_DIVIDEND));
+            try {
+                if (Integer.parseInt(etDividends.getText().toString()) > 1) {
+                    int inputInt = Integer.parseInt(inputString);
+                    editText.setText(String.valueOf(inputInt - DEFAULT_DIVIDEND));
+                }
+            } catch (Exception e) {
+                Toast.makeText(this, "Dividend must be integer value", Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 
@@ -166,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(this, "Missing values!", Toast.LENGTH_SHORT).show();
             return true;
         }
-            return false;
+        return false;
     }
 
 }
