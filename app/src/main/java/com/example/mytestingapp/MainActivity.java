@@ -4,97 +4,170 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
-    double percentage= 0.0;
-    double dividend = 0.0;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    private EditText etPercentage, etDividends, etInput1;
+    private FloatingActionButton fabIncreasePercentage, fabDecreasePercentage, fabIncreaseDividend, fabDecreaseDividend;
+    private Button btnCalc;
+    private RadioGroup radioGroup;
+    private static final double DEFAULT_PERCENTAGE = 1.0;
+    private static final int DEFAULT_DIVIDEND = 1;
 
-    @BindView(R.id.etInput1)
-    EditText input1;
-    @BindView(R.id.radioGroup)
-    RadioGroup radioGroup;
-    @BindView(R.id.radioButton1)
-    RadioButton rBtnPercentage;
-    @BindView(R.id.radioButton2)
-    RadioButton rBtnCustom_value;
-    @BindView(R.id.btnCalc)
-    Button btnCalc;
-    @BindView(R.id.flatBtn1_remove)
-    FloatingActionButton flatBtn1_remove;
-    @BindView(R.id.flatBtn1_add)
-    FloatingActionButton flatBtn1_add;
-    @BindView(R.id.flatBtn2_remove)
-    FloatingActionButton flatBtn2_remove;
-    @BindView(R.id.flatBtn2_add)
-    FloatingActionButton flatBtn2_add;
+    private static final int PERCENTAGE_TYPE = 1;
+    private static final int DIVIDEND_TYPE = 2;
+    private String type = Constants.PERCENTAGE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-        Intent intent = new Intent(this,ViewResultActivity.class);
+
+        initialize();
+        validRadioButton();
+        validateCalcButton();
+
+    }
+
+    private void initialize() {
+        etInput1 = findViewById(R.id.etInput1);
+        radioGroup = findViewById(R.id.radioGroup);
+        btnCalc = findViewById(R.id.btnCalc);
+        etPercentage = findViewById(R.id.etPercentage);
+        etDividends = findViewById(R.id.etDividends);
+        fabIncreasePercentage = findViewById(R.id.flatBtnIncreasePercentage);
+        fabDecreasePercentage = findViewById(R.id.flatBtnDecreasePercentage);
+        fabIncreaseDividend = findViewById(R.id.flatBtnIncreaseDividend);
+        fabDecreaseDividend = findViewById(R.id.flatBtnDecreaseDividend);
+
+        etPercentage.setText(String.valueOf(DEFAULT_PERCENTAGE - 1));
+        etDividends.setText(String.valueOf(DEFAULT_DIVIDEND));
+
+        fabIncreasePercentage.setOnClickListener(this);
+        fabDecreasePercentage.setOnClickListener(this);
+        fabIncreaseDividend.setOnClickListener(this);
+        fabDecreaseDividend.setOnClickListener(this);
+        btnCalc.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.flatBtnIncreasePercentage:
+                increase(etPercentage, PERCENTAGE_TYPE);
+                break;
+            case R.id.flatBtnIncreaseDividend:
+                increase(etDividends, DIVIDEND_TYPE);
+                break;
+            case R.id.flatBtnDecreasePercentage:
+                if (Double.parseDouble(etPercentage.getText().toString()) > 0.0)
+                    decrease(etPercentage, PERCENTAGE_TYPE);
+                break;
+            case R.id.flatBtnDecreaseDividend:
+                if (Integer.parseInt(etDividends.getText().toString()) > 1)
+                    decrease(etDividends, DIVIDEND_TYPE);
+                break;
+            case R.id.btnCalc:
+                calculateResult();
+        }
+    }
+
+    private void increase(EditText editText, int type) {
+        String inputString = editText.getText().toString();
+        if (type == 1) {
+            double inputDouble = Double.parseDouble(inputString);
+            editText.setText(String.valueOf(inputDouble + DEFAULT_PERCENTAGE));
+        } else {
+            int inputInt = Integer.parseInt(inputString);
+            editText.setText(String.valueOf(inputInt + DEFAULT_DIVIDEND));
+        }
+    }
+
+    private void decrease(EditText editText, int type) {
+        String inputString = editText.getText().toString();
+        if (type == 1) {
+            double inputDouble = Double.parseDouble(inputString);
+            editText.setText(String.valueOf(inputDouble - DEFAULT_PERCENTAGE));
+        } else {
+            int inputInt = Integer.parseInt(inputString);
+            editText.setText(String.valueOf(inputInt - DEFAULT_DIVIDEND));
+        }
+    }
+
+    private void validRadioButton() {
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.radioButton1:
+                        type = Constants.PERCENTAGE;
+                        break;
+                    case R.id.radioButton2:
+                        type = Constants.CUSTOM;
+                        break;
+                }
+                Toast.makeText(MainActivity.this, "Set as " + type, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void validateCalcButton() {
+        etInput1.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() > 0) {
+                    btnCalc.setEnabled(true);
+                } else {
+                    btnCalc.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+    }
+
+    private void calculateResult() {
+        if (isEditTextEmpty(etPercentage) || isEditTextEmpty(etDividends)) {
+            return;
+        }
+
+        Bundle bundle = new Bundle();
+        Intent intent = new Intent(this, ViewResultActivity.class);
+
+        bundle.putString(Constants.INPUT, etInput1.getText().toString());
+        bundle.putString(Constants.TYPE, type);
+        bundle.putString(Constants.PERCENTAGE, etPercentage.getText().toString());
+        bundle.putString(Constants.DIVIDEND, etDividends.getText().toString());
+
+        intent.putExtras(bundle);
         startActivity(intent);
-        finish();
     }
 
-                //String content = input1.getText().toString();
-                //validRadioButton();
-                //validFloatingButton();
-
-
+    private boolean isEditTextEmpty(EditText editText) {
+        if (editText.getText().toString().isEmpty()) {
+            Toast.makeText(this, "Missing values!", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+            return false;
     }
 
-//    void validRadioButton(){
-//        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(RadioGroup group, int checkedId) {
-//                switch(checkedId){
-//                    case R.id.radioButton1:
-//                        rBtnPercentage.getText();
-//                        break;
-//                    case R.id.radioButton2:
-//                        rBtnCustom_value.getText();
-//                        break;
-//                }
-//            }
-//        });
-//    }
-//    void validFloatingButton(){
-//        flatBtn1_remove.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                percentage++;
-//            }
-//        });
-//        flatBtn1_add.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                percentage--;
-//            }
-//        });
-//        flatBtn2_remove.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//              dividend--;
-//            }
-//        });
-//        flatBtn2_add.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                dividend++;
-//            }
-//        });
-//    }
+}
 
