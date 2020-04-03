@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">My TestingApp</string>
+    <string name="welcome_in_my_app">Welcome in My App \n let\'s have Fun!</string>
+    <string name="custom_value">Custom Value</string>
+    <string name="percentage">Percentage</string>
+    <string name="input1">input1</string>
+    <string name="percentage_value">Percentage/Value</string>
+    <string name="dividends">Dividends</string>
+    <string name="calculate_btn">Calculate</string>
+    <string name="input1_1">Input 1  :</string>
+    <string name="value">Value :</string>
+    <string name="type">Type :</string>
+    <string name="dividends_1">Dividends :</string>
+    <string name="pre_dividend">Pre Dividend</string>
+    <string name="total">Total</string>
+    <string name="default_value">0.0</string>
+</resources>
