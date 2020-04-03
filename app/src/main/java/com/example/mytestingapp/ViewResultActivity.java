@@ -41,7 +41,7 @@ public class ViewResultActivity extends AppCompatActivity {
         tvValue2.setText(percentage);
         tvDividends2.setText(dividend);
 
-        int inputInt = Integer.parseInt(input);
+        double inputInt = Double.parseDouble(input);
         double percDouble = Double.parseDouble(percentage);
         double total = inputInt + ((percDouble / 100) * percDouble);
 
